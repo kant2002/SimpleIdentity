@@ -1,0 +1,82 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row login-form">
+    <div class="col-md-4">
+        <h4 class="text-primary">@ViewData["Title"]</h4>
+        <section>
+            <form id="account" method="post" autocomplete="off">
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Input.Login"></label>
+                    <input asp-for="Input.Login" class="form-control" data-bind="enable: isLoginFormEnabled" disabled="@Model.IsFormDisabled" />
+                    <span asp-validation-for="Input.Login" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Input.Password"></label>
+                    <input asp-for="Input.Password" class="form-control" type="password" data-bind="enable: isLoginFormEnabled" disabled="@Model.IsFormDisabled" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    @if (Model.ErrorMessage != null)
+                    {
+                        <div class="text-danger" id="errorMessage">@Model.ErrorMessage</div>
+                    }
+                </div>
+                <div class="text-end">
+                    <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" disabled="@Model.IsFormDisabled"
+                            class="btn btn-primary"
+                            data-bind="enable: isLoginFormEnabled, text: submitText">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            @{
+            var externalLogins = this.Model.ExternalLogins;
+            @if (externalLogins != null && externalLogins.Count != 0)
+            {
+                <h4>Use another service to log in.</h4>
+                <hr />
+                if (externalLogins.Count == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
+                            for details on setting up this ASP.NET application to support logging in via external services.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in externalLogins)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script asp-add-nonce="true">
+        var timeToUnlock = @Model.TimeToUnlock;
+    </script>
+    <script src="~/dist/vendor.js" asp-append-version="true" asp-add-nonce="true"></script>
+    <script src="~/dist/login.js" asp-append-version="true" asp-add-nonce="true"></script>
+}
